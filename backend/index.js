@@ -9,7 +9,7 @@ dotenv.config();
 //middlewares
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
-app.use("/api/schools", schoolRouter);
+app.use("/api", schoolRouter);
 
 //Error Handler
 app.use((err, req, res, next) => {

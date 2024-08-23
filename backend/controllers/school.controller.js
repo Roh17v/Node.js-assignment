@@ -1,4 +1,6 @@
+import Joi from "joi";
 import { db } from "../index.js";
+import { createError } from "../utils/createError.js";
 
 export const getSchools = (req, res, next) => {
   const sql = "SELECT * FROM schools";
@@ -9,3 +11,42 @@ export const getSchools = (req, res, next) => {
     res.json(results);
   });
 };
+
+export const addSchool = (req, res, next) => {
+  const { error } = validateSchool(req.body);
+  if (error) return next(createError(400, error.details[0].message));
+
+  const sql =
+    "INSERT INTO schools (name, address, latitude, longitude) VALUES (?, ?, ?, ?)";
+  db.query(
+    sql,
+    [req.body.name, req.body.address, req.body.latitude, req.body.longitude],
+    (err, result) => {
+      if (err) return next(err);
+      return res.json(result);
+    }
+  );
+};
+
+function validateSchool(school) {
+  const schoolSchema = Joi.object({
+    name: Joi.string().trim().required().messages({
+      "string.empty": "Name is required",
+    }),
+    address: Joi.string().trim().required().messages({
+      "string.empty": "Address is required",
+    }),
+    latitude: Joi.number().min(-90).max(90).required().messages({
+      "number.base": "Latitude must be a number",
+      "number.min": "Latitude must be between -90 and 90",
+      "number.max": "Latitude must be between -90 and 90",
+    }),
+    longitude: Joi.number().min(-180).max(180).required().messages({
+      "number.base": "Longitude must be a number",
+      "number.min": "Longitude must be between -180 and 180",
+      "number.max": "Longitude must be between -180 and 180",
+    }),
+  });
+
+  return schoolSchema.validate(school);
+}
