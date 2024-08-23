@@ -1,6 +1,7 @@
 import mysql from 'mysql2'
 import dotenv from 'dotenv'
 import express from 'express'
+import schoolRouter from './routes/school.js'
 
 const app = express();
 dotenv.config();
@@ -8,6 +9,7 @@ dotenv.config();
 //middlewares
 app.use(express.json());
 app.use(express.urlencoded({extended: true}));
+app.use('/api/schools',schoolRouter)
 
 export const db = mysql.createConnection({
     host: `${process.env.HOST}`,
