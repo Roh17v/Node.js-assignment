@@ -1,5 +1,6 @@
 import Joi from "joi";
 import { db } from "../index.js";
+import { calculateDistance } from "../utils/calculateDistance.js";
 import { createError } from "../utils/createError.js";
 
 export const getSchools = (req, res, next) => {
@@ -28,9 +29,36 @@ export const addSchool = (req, res, next) => {
   );
 };
 
+export const listSchoolsByProximity = (req, res, next) => {
+  const { latitude, longitude } = req.query;
+
+  if (!latitude || !longitude) {
+    return next(createError(400, "Latitude and Longitude needed."));
+  }
+
+  const query = "SELECT id, name, latitude, longitude FROM schools";
+  db.query(query, (err, schools) => {
+    if (err) return next(err);
+
+    schools = schools.map((school) => {
+      const distance = calculateDistance(
+        latitude,
+        longitude,
+        school.latitude,
+        school.longitude
+      );
+      return { ...school, distance };
+    });
+
+    schools.sort((a, b) => a.distance - b.distance);
+
+    res.json(schools);
+  });
+};
+
 function validateSchool(school) {
   const schoolSchema = Joi.object({
-    name: Joi.string().trim().required().messages({
+    name: Joi.string().min(10).trim().required().messages({
       "string.empty": "Name is required",
     }),
     address: Joi.string().trim().required().messages({

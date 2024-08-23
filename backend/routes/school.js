@@ -1,10 +1,16 @@
 import express from "express";
-import { addSchool, getSchools } from "../controllers/school.controller.js";
+import {
+  addSchool,
+  getSchools,
+  listSchoolsByProximity,
+} from "../controllers/school.controller.js";
 
 const router = express.Router();
 
-router.get("/schools", getSchools);
+router.get("/api/schools", getSchools);
 
 router.post("/addSchool", addSchool);
+
+router.get("/listSchools", listSchoolsByProximity);
 
 export default router;
