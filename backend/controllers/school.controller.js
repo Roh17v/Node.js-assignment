@@ -24,7 +24,11 @@ export const addSchool = (req, res, next) => {
     [req.body.name, req.body.address, req.body.latitude, req.body.longitude],
     (err, result) => {
       if (err) return next(err);
-      return res.json(result);
+      return res.status(201).json({
+        success: true,
+        message: "School added successfully",
+        schoolId: result.insertId,
+      });
     }
   );
 };
